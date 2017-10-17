@@ -9,15 +9,30 @@
  *                         see https://developer.mozilla.org/en/docs/Web/API/HTMLCanvasElement/getContext for the options available
  * @return {WebGLRenderingContext} the WebGL context
  */
-var createContext = function(canvas, options)
+var createContext = function(canvas, options, width, height)
 {
-    var gl = canvas.getContext('webgl', options) || 
+    var gl = canvas.getContext('webgl', options) ||
          canvas.getContext('experimental-webgl', options);
+
+    width = width || 100
+    height = height || 100
 
     if (!gl)
     {
-        // fail, not able to get a context
-        throw new Error('This browser does not support webGL. Try using the canvas renderer');
+        let headlessGL
+        try {
+            headlessGL = require('gl');
+        } catch (e) {}
+
+        if (headlessGL) {
+            gl = headlessGL(width, height);
+        }
+
+        if (!gl)
+        {
+            // fail, not able to get a context
+            throw new Error('This browser does not support webGL. Try using the canvas renderer');
+        }
     }
 
     return gl;

@@ -1,3 +1,4 @@
+var createCanvas = require('./createCanvas')
 
 /**
  * Helper class to create a WebGL Texture
@@ -83,25 +84,60 @@ Texture.prototype.upload = function(source)
 
 	var gl = this.gl;
 
-
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
 
-	var newWidth = source.videoWidth || source.width;
-	var newHeight = source.videoHeight || source.height;
-
-	if(newHeight !== this.height || newWidth !== this.width)
-	{
-		gl.texImage2D(gl.TEXTURE_2D, 0, this.format, this.format, this.type, source);
-	}
-	else
-	{
-    	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.format, this.type, source);
+	if (typeof document === 'undefined') {
+		this.uploadNodeJS(source)
+	} else {
+		this.uploadBrowser(source)
 	}
 
 	// if the source is a video, we need to use the videoWidth / videoHeight properties as width / height will be incorrect.
-	this.width = newWidth;
-	this.height = newHeight;
+	this.width = source.videoWidth || source.width;
+	this.height = source.videoHeight || source.height;
+};
 
+Texture.prototype.uploadNodeJS = function(source) {
+	var gl = this.gl;
+
+	if (!source._pixiTexture) {
+		const canvas = createCanvas(source.width, source.height)
+		const context = canvas.getContext('2d')
+		context.drawImage(source, 0, 0)
+		const imageData = context.getImageData(0, 0, source.width, source.height)
+
+		source._pixiTexture = {
+			type: 'RGBA',
+			data: imageData.data
+		}
+	}
+
+	var newWidth = source.videoWidth || source.width;
+	var newHeight = source.videoHeight || source.height;
+	if(newHeight !== this.height || newWidth !== this.width)
+	{
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl[source._pixiTexture.type], source.width, source.height, 0, gl[source._pixiTexture.type], gl.UNSIGNED_BYTE, source._pixiTexture.data)
+	}
+	else
+	{
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.format, this.type, source);
+	}
+};
+
+Texture.prototype.uploadBrowser = function(source)
+{
+	var gl = this.gl;
+
+	var newWidth = source.videoWidth || source.width;
+	var newHeight = source.videoHeight || source.height;
+	if(newHeight !== this.height || newWidth !== this.width)
+	{
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, source.width, source.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, source.src)
+	}
+	else
+	{
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.format, this.type, source);
+	}
 };
 
 var FLOATING_POINT_AVAILABLE = false;
@@ -117,7 +153,6 @@ Texture.prototype.uploadData = function(data, width, height)
 	this.bind();
 
 	var gl = this.gl;
-
 
 	if(data instanceof Float32Array)
 	{
@@ -145,7 +180,6 @@ Texture.prototype.uploadData = function(data, width, height)
 
 	// what type of data?
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
-
 
 	if(width !== this.width || height !== this.height)
 	{
