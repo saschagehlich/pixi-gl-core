@@ -8,8 +8,8 @@ module.exports = function createCanvas (width, height)
       var Canvas = require('canvas').Canvas;
       canvas = new Canvas(width, height);
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   }
   return canvas;
-}
+};

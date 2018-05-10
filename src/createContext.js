@@ -14,12 +14,12 @@ var createContext = function(canvas, options, width, height)
     var gl = canvas.getContext('webgl', options) ||
          canvas.getContext('experimental-webgl', options);
 
-    width = width || 100
-    height = height || 100
+    width = width || 100;
+    height = height || 100;
 
     if (!gl)
     {
-        let headlessGL
+        var headlessGL;
         try {
             headlessGL = require('gl');
         } catch (e) {}
