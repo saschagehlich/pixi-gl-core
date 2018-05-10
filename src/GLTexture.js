@@ -120,7 +120,7 @@ Texture.prototype.uploadNodeJS = function(source) {
 	}
 	else
 	{
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.format, this.type, source);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl[source._pixiTexture.type], this.type, source._pixiTexture.data);
 	}
 };
 
