@@ -116,11 +116,11 @@ Texture.prototype.uploadNodeJS = function(source) {
 	var newHeight = source.videoHeight || source.height;
 	if(newHeight !== this.height || newWidth !== this.width)
 	{
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl[source._pixiTexture.type], source.width, source.height, 0, gl[source._pixiTexture.type], gl.UNSIGNED_BYTE, source._pixiTexture.data);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl[source._pixiTexture.type], newWidth, newHeight, 0, gl[source._pixiTexture.type], gl.UNSIGNED_BYTE, source._pixiTexture.data);
 	}
 	else
 	{
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl[source._pixiTexture.type], this.type, source._pixiTexture.data);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, newWidth, newHeight, gl[source._pixiTexture.type], this.type, source._pixiTexture.data);
 	}
 };
 
